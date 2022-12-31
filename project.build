@@ -3,15 +3,29 @@ ifndef VERBOSE
 MAKEFLAGS += --no-print-directory
 endif
 
+SDK_BASE ?= .
+
+ifeq ($(OS),Windows_NT)
+	CMAKE = $(SDK_BASE)/tools/cmake/bin/cmake.exe
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        CMAKE = $(SDK_BASE)/tools/cmake/bin/cmake
+    endif
+    ifeq ($(UNAME_S),Darwin)
+		#cmake must be installed on your mac
+        CMAKE = /Applications/CMake.app/Contents/bin/cmake
+    endif
+endif
 # The command to remove a file.
-RM = cmake -E remove_directory
+RM = $(CMAKE) -E remove_directory
 
 build:Makefile
-	cmake -S . -B build -G "Unix Makefiles" $(cmake_definition)
+	$(CMAKE) -S . -B build -G "Unix Makefiles" $(cmake_definition)
 	cd build && make -j4
 
 ninja:Makefile
-	cmake -S . -B build -G Ninja $(cmake_definition)
+	$(CMAKE) -S . -B build -G Ninja $(cmake_definition)
 	cd build && ninja
 
 clean:
